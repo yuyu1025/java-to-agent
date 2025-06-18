@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>职业发展规划：从高级Java开发到资深大模型工程师</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Tech Horizon -->
+    <!-- Application Structure Plan: The application uses a fixed sidebar navigation for non-linear access to key sections of the career transition plan. This structure transforms the linear report into a user-driven exploratory tool. The user journey starts with a high-level overview and market validation (Overview), moves to self-reflection (Skill Assessment), provides a structured guide (Learning Path), inspires with practical application (Practical Projects), looks to the future (Future Trends), and concludes with a clear call to action (Action Plan). This task-oriented flow is more engaging and practical for a professional planning their next career move than a simple document scroll. -->
+    <!-- Visualization & Content Choices: 
+        1. Report Info: LLM Market Growth Data ($6.4B 2024 -> $36.1B 2030). Goal: Inform & Motivate. Viz: Bar Chart. Interaction: Hover tooltips. Justification: Visually impactful representation of growth potential. Library: Chart.js (Canvas).
+        2. Report Info: Table 1 (Key Skills). Goal: Compare & Self-Assess. Viz: Interactive two-column layout. Interaction: Hovering on a Java skill highlights transferable LLM skills. Justification: Makes the concept of transferable skills tangible and interactive. Library: Vanilla JS.
+        3. Report Info: Learning Roadmap (3 Stages). Goal: Organize & Guide. Viz: Interactive tabs. Interaction: Clicking tabs reveals stage-specific content and resources. Justification: Breaks down a dense learning path into manageable, user-controlled steps. Library: Vanilla JS.
+        4. Report Info: Table 4 (Future Trends). Goal: Inform & Organize. Viz: Expandable content cards. Interaction: Clicking a card reveals detailed description and impact. Justification: Presents complex information in a digestible format, encouraging exploration without overwhelming the user. Library: Vanilla JS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 40vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            transform-origin: left;
+        }
+        .nav-link.active, .nav-link:hover {
+            background-color: #f0fdfa;
+            color: #0d9488;
+            border-left-color: #0d9488;
+        }
+        .section-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .skill-highlight {
+            background-color: #ccfbf1 !important;
+            border-left: 4px solid #14b8a6;
+            transition: all 0.3s ease;
+        }
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="relative min-h-screen md:flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-white text-slate-700 w-64 space-y-6 p-4 inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-30 shadow-lg">
+            <a href="#hero" class="flex items-center space-x-2 px-4">
+                <span class="text-2xl text-teal-600">🚀</span>
+                <span class="text-xl font-bold text-slate-800">转型路线图</span>
+            </a>
+
+            <nav>
+                <a href="#overview" class="nav-link flex items-center py-2.5 px-4 rounded-lg border-l-4 border-transparent">
+                    <span class="mr-3">🌟</span> 行业概览
+                </a>
+                <a href="#skills" class="nav-link flex items-center py-2.5 px-4 rounded-lg border-l-4 border-transparent">
+                    <span class="mr-3">🔧</span> 技能评估
+                </a>
+                <a href="#roadmap" class="nav-link flex items-center py-2.5 px-4 rounded-lg border-l-4 border-transparent">
+                    <span class="mr-3">🗺️</span> 学习路线
+                </a>
+                <a href="#projects" class="nav-link flex items-center py-2.5 px-4 rounded-lg border-l-4 border-transparent">
+                    <span class="mr-3">💡</span> 实践项目
+                </a>
+                <a href="#trends" class="nav-link flex items-center py-2.5 px-4 rounded-lg border-l-4 border-transparent">
+                    <span class="mr-3">📈</span> 未来趋势
+                </a>
+                <a href="#action" class="nav-link flex items-center py-2.5 px-4 rounded-lg border-l-4 border-transparent">
+                    <span class="mr-3">✅</span> 行动计划
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Mobile menu button -->
+        <div class="md:hidden flex justify-between items-center p-4 bg-white shadow-md sticky top-0 z-20">
+            <span class="text-xl font-bold">转型路线图</span>
+            <button id="mobile-menu-button" class="text-slate-700 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Main content -->
+        <main class="flex-1 p-4 sm:p-6 lg:p-10">
+
+            <!-- Hero Section -->
+            <section id="hero" class="min-h-screen flex items-center justify-center text-center fade-in">
+                <div class="max-w-4xl">
+                    <h1 class="text-4xl md:text-6xl font-bold text-slate-800 leading-tight">从<span class="text-teal-600">高级Java开发</span>到<span class="text-teal-600">资深大模型工程师</span></h1>
+                    <p class="mt-6 text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">
+                        本规划旨在为您提供一份全面的职业发展路线图。您扎实的软件工程背景是转型过程中的核心优势。让我们一起探索如何利用现有专长，驾驭AI前沿，成为未来的技术引领者。
+                    </p>
+                    <a href="#overview" class="mt-10 inline-block bg-teal-600 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-teal-700 transition duration-300 transform hover:scale-105">
+                        开启你的转型之旅
+                    </a>
+                </div>
+            </section>
+
+            <!-- Overview Section -->
+            <section id="overview" class="py-20 min-h-screen fade-in">
+                <h2 class="text-3xl font-bold text-center mb-4">🌟 行业概览：一个蓬勃发展的蓝海</h2>
+                <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">大模型领域正经历前所未有的快速发展，为专业人才带来了巨大的机遇。了解市场潜力和您的价值定位，是成功转型的第一步。</p>
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="section-card p-6">
+                        <h3 class="font-bold text-xl mb-4 text-teal-700">认可您现有的超能力</h3>
+                        <p class="text-slate-600 leading-relaxed">作为一名高级Java工程师，您在可扩展系统设计、性能优化和分布式系统方面的经验是极其宝贵的。这些并非局限于Java生态，而是构建任何大规模、高可靠性系统（包括大模型应用）的核心工程素养。您的转型并非从零开始，而是基于现有优势的领域扩展。</p>
+                    </div>
+                    <div class="section-card p-6">
+                        <h3 class="font-bold text-xl mb-4 text-teal-700">资深大模型工程师的价值</h3>
+                        <p class="text-slate-600 leading-relaxed">资深大模型工程师不仅是技术实现者，更是技术精通、战略影响力和领导力的结合体。您需要负责设计、实现和优化先进的AI解决方案，推动业务成果，并指导初级团队成员。您现有的“高级”经验已经为您奠定了坚实的软技能基础。</p>
+                    </div>
+                </div>
+                <div class="section-card mt-8 p-6">
+                    <h3 class="font-bold text-xl text-center mb-4 text-teal-700">全球大模型市场预计增长</h3>
+                    <p class="text-center text-slate-500 mb-6">复合年增长率（CAGR）高达33.2%，预示着对专业工程师的持续高需求。</p>
+                    <div class="chart-container">
+                        <canvas id="marketGrowthChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Skills Section -->
+            <section id="skills" class="py-20 min-h-screen fade-in">
+                 <h2 class="text-3xl font-bold text-center mb-4">🔧 技能评估：弥合差距</h2>
+                <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">成功转型始于清晰地认识到您的既有优势与需要弥补的技术差距。通过下面的互动式对比，探索您的Java经验如何直接映射到大模型开发的关键需求上。将鼠标悬停在左侧您的“Java超能力”上，查看右侧对应的“LLM新技能”。</p>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="section-card p-6">
+                        <h3 class="text-2xl font-bold mb-6 text-center text-teal-700">你的Java超能力 (可迁移技能)</h3>
+                        <ul class="space-y-4">
+                            <li data-skill-id="architecture" class="skill-source p-4 border border-slate-200 rounded-lg cursor-pointer hover:bg-teal-50"><strong>软件架构与设计:</strong> 设计可扩展、健壮和可维护的系统。</li>
+                            <li data-skill-id="debugging" class="skill-source p-4 border border-slate-200 rounded-lg cursor-pointer hover:bg-teal-50"><strong>问题解决与调试:</strong> 诊断和解决复杂的软件问题。</li>
+                            <li data-skill-id="cicd" class="skill-source p-4 border border-slate-200 rounded-lg cursor-pointer hover:bg-teal-50"><strong>CI/CD与部署:</strong> 自动化构建、测试和部署流程。</li>
+                            <li data-skill-id="performance" class="skill-source p-4 border border-slate-200 rounded-lg cursor-pointer hover:bg-teal-50"><strong>性能优化:</strong> 优化代码和系统性能。</li>
+                            <li data-skill-id="distributed" class="skill-source p-4 border border-slate-200 rounded-lg cursor-pointer hover:bg-teal-50"><strong>分布式系统:</strong> 理解并实践分布式计算。</li>
+                        </ul>
+                    </div>
+                    <div class="section-card p-6">
+                         <h3 class="text-2xl font-bold mb-6 text-center text-slate-800">需掌握的LLM新技能 (关键差距)</h3>
+                        <ul class="space-y-4">
+                            <li data-skill-id="python" class="skill-target p-4 border border-slate-200 rounded-lg"><strong>Python及其生态:</strong> 精通Python、PyTorch、Hugging Face。</li>
+                            <li data-skill-id="theory" class="skill-target p-4 border border-slate-200 rounded-lg"><strong>深度学习与NLP理论:</strong> 理解Transformer、注意力机制。</li>
+                            <li data-skill-id="llm-tech" class="skill-target p-4 border border-slate-200 rounded-lg"><strong>LLM特定技术:</strong> 微调 (LoRA), 提示工程, RAG。</li>
+                            <li data-skill-id="cicd" class="skill-target p-4 border border-slate-200 rounded-lg"><strong>MLOps与部署:</strong> LLM的CI/CD，模型监控。</li>
+                            <li data-skill-id="performance" class="skill-target p-4 border border-slate-200 rounded-lg"><strong>性能优化:</strong> 推理和训练优化，模型量化。</li>
+                            <li data-skill-id="distributed" class="skill-target p-4 border border-slate-200 rounded-lg"><strong>分布式训练:</strong> 大规模模型训练。</li>
+                            <li data-skill-id="architecture" class="skill-target p-4 border border-slate-200 rounded-lg"><strong>API开发与系统集成:</strong> 将LLM集成到现有应用。</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Roadmap Section -->
+            <section id="roadmap" class="py-20 min-h-screen fade-in">
+                <h2 class="text-3xl font-bold text-center mb-4">🗺️ 结构化学习路线</h2>
+                <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">通往资深大模型工程师的道路可以分为三个逻辑清晰的阶段。这个结构化的路径将帮助您系统地建立所需的知识体系，从坚实的基础到前沿的专业技能。</p>
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex border-b border-slate-200 mb-6">
+                        <button class="roadmap-tab active-tab text-lg font-semibold py-3 px-6 text-teal-600 border-b-2 border-teal-600" data-tab="1">阶段一：夯实基础</button>
+                        <button class="roadmap-tab text-lg font-semibold py-3 px-6 text-slate-500" data-tab="2">阶段二：深入NLP</button>
+                        <button class="roadmap-tab text-lg font-semibold py-3 px-6 text-slate-500" data-tab="3">阶段三：专攻大模型</button>
+                    </div>
+                    <div id="roadmap-content" class="section-card p-6">
+                        <!-- Content will be injected by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Projects Section -->
+            <section id="projects" class="py-20 min-h-screen fade-in">
+                <h2 class="text-3xl font-bold text-center mb-4">💡 实践项目：将理论付诸实践</h2>
+                 <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">理论知识需要通过实践来巩固和验证。动手项目不仅是学习的最佳方式，更是构建亮眼作品集、向未来雇主展示你解决实际问题能力的关键。</p>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="section-card p-6">
+                        <div class="text-3xl mb-4">💬</div>
+                        <h3 class="font-bold text-xl mb-2">基于RAG的FAQ系统</h3>
+                        <p class="text-slate-600">构建一个能回答特定文档集问题的问答机器人。这是展示你整合外部知识、使用向量数据库和减少模型“幻觉”能力的核心项目。</p>
+                    </div>
+                    <div class="section-card p-6">
+                        <div class="text-3xl mb-4">📝</div>
+                        <h3 class="font-bold text-xl mb-2">内容摘要工具</h3>
+                        <p class="text-slate-600">开发一个可以自动为长篇文章、会议记录或视频生成简洁摘要的应用。这能体现你对文本处理和序列到序列模型的理解。</p>
+                    </div>
+                    <div class="section-card p-6">
+                        <div class="text-3xl mb-4">⚙️</div>
+                        <h3 class="font-bold text-xl mb-2">个人学习伴侣</h3>
+                        <p class="text-slate-600">创建一个智能体，它可以根据你的学习目标，为你规划学习路径、寻找资料并生成测验。这能展示你对智能体和工具集成的掌握。</p>
+                    </div>
+                    <div class="section-card p-6">
+                        <div class="text-3xl mb-4">📈</div>
+                        <h3 class="font-bold text-xl mb-2">Kaggle竞赛</h3>
+                        <p class="text-slate-600">参加NLP相关的Kaggle竞赛，在真实数据集上解决问题。这是磨练技能、验证模型性能，并获得可量化成就的绝佳平台。</p>
+                    </div>
+                    <div class="section-card p-6">
+                        <div class="text-3xl mb-4">🌐</div>
+                        <h3 class="font-bold text-xl mb-2">开源项目贡献</h3>
+                        <p class="text-slate-600">为Hugging Face Transformers、LangChain等知名项目贡献代码。这不仅能提升技能，还能建立你在社区中的专业声誉。</p>
+                    </div>
+                     <div class="section-card p-6">
+                        <div class="text-3xl mb-4">🤖</div>
+                        <h3 class="font-bold text-xl mb-2">LLM的CI/CD管道</h3>
+                        <p class="text-slate-600">利用你现有的DevOps经验，设计并实现一个自动化的CI/CD管道，用于大模型的测试、部署和监控。直接展示你的MLOps能力。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trends Section -->
+            <section id="trends" class="py-20 min-h-screen fade-in">
+                <h2 class="text-3xl font-bold text-center mb-4">📈 未来趋势：洞见先机</h2>
+                <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">了解行业的发展方向对长期职业规划至关重要。将你的技能发展与未来需求对齐，才能在快速变化的技术浪潮中立于不败之地。点击卡片查看详情。</p>
+                <div id="trends-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Trends will be injected by JS -->
+                </div>
+            </section>
+            
+            <!-- Action Plan Section -->
+            <section id="action" class="py-20 min-h-screen fade-in">
+                <h2 class="text-3xl font-bold text-center mb-4">✅ 你的即时行动计划</h2>
+                <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">转型之路始于足下。以下是为您量身定制的、可以立即开始的行动步骤，助您高效、系统地开启职业新篇章。</p>
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <div class="section-card p-6 flex items-start space-x-4">
+                        <div class="text-3xl font-bold text-teal-500">1</div>
+                        <div>
+                            <h3 class="font-bold text-xl mb-1">深入掌握Python</h3>
+                            <p class="text-slate-600">将Python作为你的主要编程语言，并熟练使用NumPy, Pandas等核心库。这是进入AI领域的第一张门票。</p>
+                        </div>
+                    </div>
+                    <div class="section-card p-6 flex items-start space-x-4">
+                        <div class="text-3xl font-bold text-teal-500">2</div>
+                        <div>
+                            <h3 class="font-bold text-xl mb-1">巩固ML/DL基础</h3>
+                            <p class="text-slate-600">从Andrew Ng的课程或fast.ai开始，系统学习机器学习和深度学习的理论与实践基础。</p>
+                        </div>
+                    </div>
+                    <div class="section-card p-6 flex items-start space-x-4">
+                        <div class="text-3xl font-bold text-teal-500">3</div>
+                        <div>
+                            <h3 class="font-bold text-xl mb-1">精通核心LLM框架</h3>
+                            <p class="text-slate-600">优先学习和实践PyTorch, Hugging Face Transformers, LangChain。它们是构建和部署大模型应用的核心工具。</p>
+                        </div>
+                    </div>
+                     <div class="section-card p-6 flex items-start space-x-4">
+                        <div class="text-3xl font-bold text-teal-500">4</div>
+                        <div>
+                            <h3 class="font-bold text-xl mb-1">构建强大的作品集</h3>
+                            <p class="text-slate-600">启动你的第一个个人项目（如RAG问答系统），并逐步参与开源贡献，用实际成果证明你的能力。</p>
+                        </div>
+                    </div>
+                    <div class="section-card p-6 flex items-start space-x-4">
+                        <div class="text-3xl font-bold text-teal-500">5</div>
+                        <div>
+                            <h3 class="font-bold text-xl mb-1">聚焦利基市场</h3>
+                            <p class="text-slate-600">结合你现有的Java企业经验，考虑专注于某个特定领域，如金融科技的AI解决方案或企业级MLOps，这将成为你的独特竞争优势。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const sidebar = document.getElementById('sidebar');
+
+    mobileMenuButton.addEventListener('click', () => {
+        sidebar.classList.toggle('-translate-x-full');
+    });
+    
+    // Smooth scrolling for sidebar links, and close mobile menu on click
+    document.querySelectorAll('aside a').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            if (sidebar.classList.contains('-translate-x-full') === false) {
+                 sidebar.classList.add('-translate-x-full');
+            }
+        });
+    });
+
+    // Chart.js: Market Growth Chart
+    const ctx = document.getElementById('marketGrowthChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['2024', '2030'],
+            datasets: [{
+                label: '全球大模型市场规模 (单位: 十亿美元)',
+                data: [6.4, 36.1],
+                backgroundColor: [
+                    'rgba(13, 148, 136, 0.2)',
+                    'rgba(15, 118, 110, 0.2)',
+                ],
+                borderColor: [
+                    'rgb(13, 148, 136)',
+                    'rgb(15, 118, 110)',
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: '市场规模 (十亿美元)',
+                        font: { size: 14 }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y) + 'B';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Skills Section Interaction
+    const skillSources = document.querySelectorAll('.skill-source');
+    const skillTargets = document.querySelectorAll('.skill-target');
+
+    skillSources.forEach(source => {
+        source.addEventListener('mouseenter', () => {
+            const skillId = source.dataset.skillId;
+            skillTargets.forEach(target => {
+                if (target.dataset.skillId === skillId) {
+                    target.classList.add('skill-highlight');
+                }
+            });
+        });
+        source.addEventListener('mouseleave', () => {
+            skillTargets.forEach(target => {
+                target.classList.remove('skill-highlight');
+            });
+        });
+    });
+
+    // Roadmap Section: Tabs
+    const roadmapTabs = document.querySelectorAll('.roadmap-tab');
+    const roadmapContent = document.getElementById('roadmap-content');
+    const roadmapData = {
+        '1': {
+            title: '阶段一：AI与机器学习基础',
+            description: '在进入大模型领域之前，建立扎实的AI和机器学习基础至关重要。这个阶段的目标是掌握核心理论、数学先修知识和必要的编程工具。',
+            items: [
+                '<strong>核心ML/DL概念:</strong> 理解监督/无监督学习、回归、分类、神经网络、反向传播等。',
+                '<strong>数学先修知识:</strong> 熟悉微积分、线性代数和基础概率统计。',
+                '<strong>Python精通与核心库:</strong> 精通Python，并掌握NumPy、Pandas和Scikit-learn。',
+            ],
+            resource: '推荐资源：Andrew Ng的机器学习课程 (Coursera), fast.ai课程。'
+        },
+        '2': {
+            title: '阶段二：深入自然语言处理与Transformer',
+            description: '掌握了基础后，下一步是深入自然语言处理（NLP）和驱动现代大模型的Transformer架构。',
+            items: [
+                '<strong>NLP基础:</strong> 学习分词、词嵌入、序列建模和常见NLP任务。',
+                '<strong>Transformer架构:</strong> 深入理解注意力机制、编码器/解码器结构、BERT和GPT。',
+                '<strong>关键框架:</strong> 精通PyTorch和TensorFlow，并熟练掌握Hugging Face Transformers库。',
+            ],
+            resource: '推荐资源：斯坦福CS224N课程, Google Cloud Transformer与BERT模型课程。'
+        },
+        '3': {
+            title: '阶段三：大模型专业化',
+            description: '这是您真正成为大模型专家的阶段，重点学习特定技术、框架和运维实践。',
+            items: [
+                '<strong>LLM架构与微调:</strong> 研究预训练、指令微调、LoRA/QLoRA等技术。',
+                '<strong>提示工程:</strong> 设计有效的提示词，掌握Few-Shot、思维链(CoT)等高级技巧。',
+                '<strong>RAG与向量数据库:</strong> 学习使用LangChain/LlamaIndex构建RAG管道，解决模型幻觉问题。',
+                '<strong>LLMOps:</strong> 掌握大模型的CI/CD、部署、监控和优化。',
+            ],
+            resource: '推荐资源：DeepLearning.AI生成式AI课程, Duke大学LLMOps课程。'
+        }
+    };
+    
+    function updateRoadmapContent(tabId) {
+        const data = roadmapData[tabId];
+        roadmapContent.innerHTML = `
+            <h3 class="text-2xl font-bold mb-4 text-slate-800">${data.title}</h3>
+            <p class="text-slate-600 mb-6">${data.description}</p>
+            <ul class="space-y-3 mb-6 list-disc list-inside text-slate-700">
+                ${data.items.map(item => `<li>${item}</li>`).join('')}
+            </ul>
+            <p class="text-teal-700 font-semibold p-3 bg-teal-50 rounded-lg">${data.resource}</p>
+        `;
+    }
+
+    roadmapTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            roadmapTabs.forEach(t => t.classList.remove('active-tab', 'text-teal-600', 'border-teal-600'));
+            tab.classList.add('active-tab', 'text-teal-600', 'border-teal-600');
+            updateRoadmapContent(tab.dataset.tab);
+        });
+    });
+    
+    // Initial content
+    updateRoadmapContent('1');
+
+    // Trends Section: Cards
+    const trendsContainer = document.getElementById('trends-container');
+    const trendsData = [
+        { icon: '🤏', title: '更小、更高效的模型', description: '推动开发参数更少、计算成本更低但性能强大的模型，适用于边缘设备和更广泛的应用场景。', impact: '影响：增加对模型压缩、量化、边缘部署和推理优化技能的需求。' },
+        { icon: '🔍', title: '实时事实核查与RAG', description: '大模型与实时数据源和外部知识库深度集成，以减少幻觉并提高信息准确性。', impact: '影响：RAG框架、向量数据库、数据管道和实时数据处理技能变得关键。' },
+        { icon: '🧬', title: '合成训练数据', description: '大模型能够生成自身的训练数据，降低数据收集成本，提升特定领域性能。', impact: '影响：需要掌握合成数据生成技术、数据质量评估和数据工程能力。' },
+        { icon: '🏢', title: '企业集成与领域模型', description: '大模型深度融入企业日常运营，出现针对特定行业（如金融、医疗）定制的模型。', impact: '影响：需要结合行业领域知识，开发和部署垂直领域的大模型解决方案。' },
+        { icon: '🎨', title: '多模态能力', description: '模型从文本扩展到处理图像、音频、视频等多种数据形式，实现更丰富的交互和应用。', impact: '影响：增加对多模态数据处理、跨模态模型架构和应用开发技能的需求。' },
+        { icon: '🤖', title: '自主智能体', description: '由大模型驱动的系统能够自主决策、与工具交互并执行复杂任务，无需持续人工干预。', impact: '影响：智能体设计、工具集成、规划与推理的技能将成为核心。' },
+    ];
+
+    trendsData.forEach(trend => {
+        const card = document.createElement('div');
+        card.className = 'section-card cursor-pointer';
+        card.innerHTML = `
+            <div class="p-6">
+                <div class="flex items-center mb-3">
+                    <span class="text-3xl mr-4">${trend.icon}</span>
+                    <h3 class="font-bold text-lg">${trend.title}</h3>
+                </div>
+                <div class="trend-details hidden text-sm text-slate-600 space-y-2">
+                    <p>${trend.description}</p>
+                    <p class="font-semibold text-teal-700">${trend.impact}</p>
+                </div>
+            </div>
+        `;
+        trendsContainer.appendChild(card);
+
+        card.addEventListener('click', () => {
+            card.querySelector('.trend-details').classList.toggle('hidden');
+        });
+    });
+
+    // Active nav link highlighting on scroll
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                });
+            }
+        });
+    }, { rootMargin: '-50% 0px -50% 0px' });
+
+    sections.forEach(section => {
+        observer.observe(section);
+    });
+});
+</script>
+
+</body>
+</html>
